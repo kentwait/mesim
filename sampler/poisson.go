@@ -6,6 +6,7 @@ package sampler
 import (
 	"math"
 	"math/rand"
+	utils "mesim/utils"
 )
 
 // PoissonMutArray samples from a Poisson distribution and
@@ -80,18 +81,12 @@ func PoissonMutCoords(mu float64, nSites, popSize int64) [][]int64 {
 
 	for i := int64(0); i < n; i++ {
 		if PoissonSampler(mu) > 0 {
-			var q, r = divmod(int64(i), int64(nSites))
+			var q, r = utils.DivMod(int64(i), int64(nSites))
 			coords := []int64{q, r}
 			result = append(result, coords)
 		}
 	}
 	return result
-}
-
-func divmod(numerator, denominator int64) (quotient, remainder int64) {
-	quotient = numerator / denominator // integer division, decimals are truncated
-	remainder = numerator % denominator
-	return
 }
 
 // PoissonSampler return a pseudorandom sample from a Poisson
