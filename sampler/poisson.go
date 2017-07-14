@@ -61,31 +61,33 @@ func poissonMutArray(mu float64, n int64) []int64 {
 
 //PoissonMutCoords
 func PoissonMutCoordsFromArray(arr [][]int64) [][]int64 {
-	var result [][]int64
+	var xArray, yArray []int64
 
 	for m, col := range arr {
 		for n, v := range col {
 			if v > 0 {
-				coords := []int64{int64(m), int64(n)}
-				result = append(result, coords)
+				xArray = append(xArray, int64(m))
+				yArray = append(yArray, int64(n))
 			}
 		}
 	}
+	result := [][]int64{xArray, yArray}
 	return result
 }
 
 //PoissonMutCoords
 func PoissonMutCoords(mu float64, nSites, popSize int64) [][]int64 {
-	var result [][]int64
+	var xArray, yArray []int64
 	n := nSites * popSize
 
 	for i := int64(0); i < n; i++ {
 		if PoissonSampler(mu) > 0 {
 			var q, r = utils.DivMod(int64(i), int64(nSites))
-			coords := []int64{q, r}
-			result = append(result, coords)
+			xArray = append(xArray, q)
+			yArray = append(yArray, r)
 		}
 	}
+	result := [][]int64{xArray, yArray}
 	return result
 }
 

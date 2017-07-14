@@ -4,11 +4,10 @@
 package main
 
 import (
-	"math/rand"
-	"time"
-
 	"log"
+	"math/rand"
 	sampler "mesim/sampler"
+	"time"
 )
 
 // Evolve
@@ -31,12 +30,12 @@ func EvolveAlt(ancArray *[]int64, rateMatrix [][]float64) {
 	mutCoords := sampler.PoissonMutCoords(mu, int64(len(*ancArray)), int64(1))
 	var tmpArray []int64
 	if len(mutCoords) > 0 {
-		for _, coords := range mutCoords {
-			tmpArray = append(tmpArray, (*ancArray)[coords[1]])
+		for _, yPos := range mutCoords[1] {
+			tmpArray = append(tmpArray, (*ancArray)[yPos])
 		}
 		Evolve(&tmpArray, rateMatrix)
-		for i, coords := range mutCoords {
-			(*ancArray)[coords[0]] = tmpArray[i]
+		for i, xPos := range mutCoords[0] {
+			(*ancArray)[xPos] = tmpArray[i]
 		}
 	}
 
