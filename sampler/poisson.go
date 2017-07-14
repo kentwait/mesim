@@ -1,6 +1,3 @@
-// Copyright Kent Kawashima 2017
-// All Rights Reserved
-
 package sampler
 
 import (
