@@ -1,3 +1,6 @@
+// Copyright Kent Kawashima 2017
+// All Rights Reserved
+
 package main
 
 import (
@@ -7,7 +10,9 @@ import (
 	"time"
 )
 
-//PoissonMutArray
+// PoissonMutArray samples from a Poisson distribution and
+// returns a 2-d array of Poisson random variables
+// whose rows represent individuals and columns represent sites.
 func PoissonMutArray(mu float64, nSites, popSize int64) [][]int64 {
 	var result [][]int64
 	tmp := make([]int64, nSites*popSize)
@@ -43,11 +48,14 @@ func PoissonMutArray(mu float64, nSites, popSize int64) [][]int64 {
 	return result
 }
 
+// poissonMutArray is the base function of PoissonMutArray.
+// It calls the PoissonSampler function to generate a set of Poisson
+// random variables.
 func poissonMutArray(mu float64, n int64) []int64 {
 	result := make([]int64, n)
 
 	for i := int64(0); i < n; i++ {
-		result[i] = PoissonSample(mu)
+		result[i] = PoissonSampler(mu)
 	}
 	return result
 }
@@ -73,7 +81,7 @@ func PoissonMutCoords(mu float64, nSites, popSize int64) [][]int64 {
 	n := nSites * popSize
 
 	for i := int64(0); i < n; i++ {
-		if PoissonSample(mu) > 0 {
+		if PoissonSampler(mu) > 0 {
 			var q, r = divmod(int64(i), int64(nSites))
 			coords := []int64{q, r}
 			result = append(result, coords)
@@ -88,7 +96,9 @@ func divmod(numerator, denominator int64) (quotient, remainder int64) {
 	return
 }
 
-func PoissonSample(lambda float64) int64 {
+// PoissonSampler return a pseudorandom sample from a Poisson
+// distribution of lambda using the Knuth algorithm.
+func PoissonSampler(lambda float64) int64 {
 	L := math.Exp(-1 * lambda)
 	k := 0
 	p := 1.
@@ -131,6 +141,7 @@ func Multinomial(n int64, p []float64) []int64 {
 	}
 }
 
+// multinomial is the base function of Multinomial.
 func multinomial(n int64, p []float64) []int64 {
 	result := make([]int64, len(p))
 	cumP := make([]float64, len(p))
