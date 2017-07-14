@@ -36,6 +36,16 @@ func Multinomial(n int64, p []float64) []int64 {
 	}
 }
 
+// MultinomialWhere returns the coordinates equal to the given value
+func MultinomialWhere(n int64, p []float64, cnt int64) (result []int64) {
+	for i, hit := range Multinomial(n, p) {
+		if hit == cnt {
+			result = append(result, int64(i))
+		}
+	}
+	return
+}
+
 // multinomial is the base function of Multinomial.
 func multinomial(n int64, p []float64) []int64 {
 	result := make([]int64, len(p))
