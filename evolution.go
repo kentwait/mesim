@@ -21,7 +21,7 @@ func EvolveExplicit(ancArray *[]int, rateMatrix [][]float64) {
 
 // EvolveFast
 func EvolveFast(ancArray *[]int, mu float64, zeroedRateMatrix [][]float64) {
-	mutCoords := sampler.PoissonMutCoords(mu, int64(len(*ancArray)), int64(1))
+	mutCoords := sampler.PoissonMutCoords(mu, len(*ancArray), 1)
 	var tmpArray []int
 	if len(mutCoords) > 0 {
 		for _, yPos := range mutCoords[1] {
@@ -93,14 +93,14 @@ func MutateSeqSpace(seqSpace *[][]int, mu float64, rateMatrix [][]float64) {
 	numSites := len((*seqSpace)[0])
 	muPerSeq := mu * float64(numSites)
 
-	// Returns two arrays, array[0] is sequence ID, array[1] always 0, array[2] is number of hits
-	hitsPerSeq := sampler.PoissonMutCoords(muPerSeq, int64(popSize), int64(1))
+	// Returns two arrays, array[0] is always 0, array[1] is column coords, array[2] is number of hits
+	hitsPerSeq := sampler.PoissonMutCoords(muPerSeq, popSize, 1)
 
 	var permSites []int
 	var seqIdx, char, newChar int
 	for i, hits := range hitsPerSeq[2] {
 		permSites = rand.Perm(numSites)
-		seqIdx = int(hitsPerSeq[0][i])
+		seqIdx = hitsPerSeq[0][i]
 		for _, siteIdx := range permSites[:hits] {
 			char = (*seqSpace)[seqIdx][siteIdx]
 			newChar = sampler.MultinomialWhere(1, rateMatrix[char], 1)[0]
