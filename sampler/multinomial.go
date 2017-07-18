@@ -5,6 +5,13 @@ import (
 	"math/rand"
 )
 
+// BinomialSample
+func BinomialSample(n int, p float64) int {
+	pArray := []float64{p, 1 - p}
+	result := generalMultinomial(n, pArray, false)
+	return result[0]
+}
+
 // MultinomialSample draws a sample from a multinomial distribution.
 func MultinomialSample(n int, p []float64) (result []int) {
 	result = generalMultinomial(n, p, false)
