@@ -18,8 +18,7 @@ func TestEvolveChar(t *testing.T) {
 		newChar = EvolveChar(newChar, rateMatrix)
 	}
 	if ancChar == newChar {
-		t.Error("ancChar should not be equal to newChar")
-		t.Error(ancChar, newChar)
+		t.Errorf("EvolveChar(%d): expected 1, 2, or 3, actual (%d)", ancChar, newChar)
 	}
 }
 func TestEvolveExplicit(t *testing.T) {
@@ -47,7 +46,7 @@ func TestEvolveExplicit(t *testing.T) {
 		}
 	}
 	if diffCnt == 0 {
-		t.Error("ancArray should not be equal to evolvedArray")
+		t.Error("EvolveExplicit(ancArray, rateMatrix): ancArray should not be equal to result evolvedArray")
 		t.Error(ancArray, evolvedArray)
 	}
 }
@@ -77,7 +76,56 @@ func TestEvolveFast(t *testing.T) {
 		}
 	}
 	if diffCnt == 0 {
-		t.Error("ancArray should not be equal to evolvedArray")
+		t.Error("TestEvolveFast(ancArray, 0.99, rateMatrix),  ancArray should not be equal to result evolvedArray")
 		t.Error(ancArray, evolvedArray)
 	}
+}
+
+func TestSeqSpaceToFitSpace(t *testing.T) {
+	seqSpace := [][]int{
+		[]int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		[]int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		[]int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		[]int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		[]int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	}
+	fitnessMatrix := [][]float64{
+		[]float64{1.0, 1.0, 1.0, 1.0},
+		[]float64{1.0, 1.0, 1.0, 1.0},
+		[]float64{1.0, 1.0, 1.0, 1.0},
+		[]float64{1.0, 1.0, 1.0, 1.0},
+		[]float64{1.0, 1.0, 1.0, 1.0},
+		[]float64{1.0, 1.0, 1.0, 1.0},
+		[]float64{1.0, 1.0, 1.0, 1.0},
+		[]float64{1.0, 1.0, 1.0, 1.0},
+		[]float64{1.0, 1.0, 1.0, 1.0},
+		[]float64{1.0, 1.0, 1.0, 1.0},
+	}
+	fitnessFunction := func(seq []int) (multSum float64) {
+		multSum = float64(1)
+		for i, char := range seq {
+			multSum *= float64(fitnessMatrix[i][char])
+		}
+		return
+	}
+	expectedFitSpace := []float64{
+		1 / float64(5),
+		1 / float64(5),
+		1 / float64(5),
+		1 / float64(5),
+		1 / float64(5),
+	}
+
+	actualFitSpace := SeqSpaceToFitSpace(seqSpace, fitnessMatrix, fitnessFunction, true)
+
+	diffCnt := 0
+	for i := range expectedFitSpace {
+		if expectedFitSpace[i] != actualFitSpace[i] {
+			diffCnt++
+		}
+	}
+	if diffCnt > 0 {
+		t.Errorf("SeqSpaceToFitSpace(seqSpace, fitnessMatrix, fitnessFunction, true): expected %v, actual %v", expectedFitSpace, actualFitSpace)
+	}
+
 }
