@@ -72,10 +72,12 @@ func ReplicateSelect(ancSeqSpace [][]int, nextPopSize int, fitnessMatrix [][]flo
 	ancSeqSpaceCnts := sampler.Multinomial(nextPopSize, normedFitSpace)
 
 	newSeqSpace := make([][]int, len(ancSeqSpace))
+	idxOffset := 0
 	for ancPos, cnt := range ancSeqSpaceCnts {
-		for i := 0; i < cnt; i++ {
+		for i := 0 + idxOffset; i < cnt+idxOffset; i++ {
 			newSeqSpace[i] = ancSeqSpace[ancPos]
 		}
+		idxOffset += cnt
 	}
 	return newSeqSpace
 }
