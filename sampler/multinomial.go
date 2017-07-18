@@ -38,6 +38,38 @@ func Multinomial(n int, p []float64) []int {
 	}
 }
 
+// Multinomial draws a sample from a multinomial distribution.
+func MultinomialLog(n int, p []float64) []int {
+	// If n * len(p) > 1000, uses concurrency
+	if n*len(p) > 1000 {
+		workers := 0
+		resultChan := make(chan []int)
+
+		for n > 1000 {
+			go func() {
+				resultChan <- multinomialLog(1000, p)
+			}()
+			n -= 1000
+			workers++
+		}
+		go func() {
+			resultChan <- multinomialLog(n, p)
+		}()
+		workers++
+
+		result := make([]int, len(p))
+		for i := 0; i < workers; i++ {
+			tmp := <-resultChan
+			for j := 0; j < len(result); j++ {
+				result[j] += tmp[j]
+			}
+		}
+		return result
+	} else {
+		return multinomialLog(n, p)
+	}
+}
+
 // MultinomialWhere returns the coordinates equal to the given value
 func MultinomialWhere(n int, p []float64, cnt int) (result []int) {
 	for i, hit := range Multinomial(n, p) {
