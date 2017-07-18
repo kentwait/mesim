@@ -1,7 +1,6 @@
 package mesim
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -169,11 +168,8 @@ func TestReplicateSelect(t *testing.T) {
 		return
 	}
 
-	var tempSeqSpace [][]int
 	for i := 0; i < 100; i++ {
-		fmt.Println(tempSeqSpace)
-		tempSeqSpace = ReplicateSelect(newSeqSpace, nextPopSize, fitnessMatrix, fitnessFunction)
-		newSeqSpace = tempSeqSpace
+		newSeqSpace = ReplicateSelect(newSeqSpace, nextPopSize, fitnessMatrix, fitnessFunction)
 	}
 
 	diffCnt := 0
