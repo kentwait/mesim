@@ -6,69 +6,15 @@ import (
 )
 
 // Multinomial draws a sample from a multinomial distribution.
-func Multinomial(n int, p []float64) []int {
-	trials := 10000
-	// If n * len(p) > 1000, uses concurrency
-	if n*len(p) > trials {
-		workers := 0
-		resultChan := make(chan []int)
-
-		for n > trials {
-			go func() {
-				resultChan <- multinomial(trials, p)
-			}()
-			n -= trials
-			workers++
-		}
-		go func() {
-			resultChan <- multinomial(n, p)
-		}()
-		workers++
-
-		result := make([]int, len(p))
-		for i := 0; i < workers; i++ {
-			tmp := <-resultChan
-			for j := 0; j < len(result); j++ {
-				result[j] += tmp[j]
-			}
-		}
-		return result
-	} else {
-		return multinomial(n, p)
-	}
+func Multinomial(n int, p []float64) (result []int) {
+	result = generalMultinomial(n, p, false)
+	return result
 }
 
-// Multinomial draws a sample from a multinomial distribution.
-func MultinomialLog(n int, p []float64) []int {
-	trials := 10000
-	// If n * len(p) > 1000, uses concurrency
-	if n*len(p) > trials {
-		workers := 0
-		resultChan := make(chan []int)
-
-		for n > trials {
-			go func() {
-				resultChan <- multinomialLog(trials, p)
-			}()
-			n -= trials
-			workers++
-		}
-		go func() {
-			resultChan <- multinomialLog(n, p)
-		}()
-		workers++
-
-		result := make([]int, len(p))
-		for i := 0; i < workers; i++ {
-			tmp := <-resultChan
-			for j := 0; j < len(result); j++ {
-				result[j] += tmp[j]
-			}
-		}
-		return result
-	} else {
-		return multinomialLog(n, p)
-	}
+// MultinomialLog draws a sample from a multinomial distribution.
+func MultinomialLog(n int, p []float64) (result []int) {
+	result = generalMultinomial(n, p, true)
+	return result
 }
 
 // MultinomialWhere returns the coordinates equal to the given value
@@ -79,6 +25,50 @@ func MultinomialWhere(n int, p []float64, cnt int) (result []int) {
 		}
 	}
 	return
+}
+
+func generalMultinomial(n int, p []float64, isLogP bool) []int {
+	trials := 10000
+
+	// If n * len(p) > 1000, uses concurrency
+	if n*len(p) > trials {
+		workers := 0
+		resultChan := make(chan []int)
+
+		for n > trials {
+			go func() {
+				if isLogP == true {
+					resultChan <- multinomialLog(trials, p)
+				} else {
+					resultChan <- multinomial(trials, p)
+				}
+			}()
+			n -= trials
+			workers++
+		}
+		go func() {
+			if isLogP == true {
+				resultChan <- multinomialLog(n, p)
+			} else {
+				resultChan <- multinomial(n, p)
+			}
+		}()
+		workers++
+
+		result := make([]int, len(p))
+		for i := 0; i < workers; i++ {
+			tmp := <-resultChan
+			for j := 0; j < len(result); j++ {
+				result[j] += tmp[j]
+			}
+		}
+		return result
+	}
+	if isLogP == true {
+		return multinomialLog(n, p)
+	}
+	return multinomial(n, p)
+
 }
 
 // multinomial is the base function of Multinomial.
