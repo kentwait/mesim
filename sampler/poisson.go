@@ -58,17 +58,18 @@ func poissonMutArray(mu float64, n int64) []int64 {
 
 //PoissonMutCoords
 func PoissonMutCoordsFromArray(arr [][]int64) [][]int64 {
-	var xArray, yArray []int64
+	var xArray, yArray, value []int64
 
 	for m, col := range arr {
 		for n, v := range col {
 			if v > 0 {
 				xArray = append(xArray, int64(m))
 				yArray = append(yArray, int64(n))
+				value = append(value, v)
 			}
 		}
 	}
-	result := [][]int64{xArray, yArray}
+	result := [][]int64{xArray, yArray, value}
 	return result
 }
 
