@@ -74,3 +74,12 @@ func multinomial(n int, p []float64) []int {
 	}
 	return result
 }
+
+func multinomialLog(n int, logP []float64) []int {
+	result := make([]int, len(logP))
+
+	for i := 0; i < n; i++ {
+
+	}
+	return result
+}
