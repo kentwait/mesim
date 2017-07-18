@@ -40,8 +40,8 @@ func EvolveFast(ancArray *[]int, mu float64, zeroedRateMatrix [][]float64) {
 type FitnessFunc func([]int) float64
 
 // SeqSpaceToFitSpace
-func SeqSpaceToFitSpace(ancSeqSpace [][]int, fitnessMatrix [][]float64, totalFitnessFunc FitnessFunc, normalized bool) []float64 {
-	fitnessSpace := seqSpaceToFitSpace(ancSeqSpace, fitnessMatrix, totalFitnessFunc)
+func SeqSpaceToFitSpace(seqSpace [][]int, fitnessMatrix [][]float64, totalFitnessFunc FitnessFunc, normalized bool) []float64 {
+	fitnessSpace := seqSpaceToFitSpace(seqSpace, fitnessMatrix, totalFitnessFunc)
 	if normalized == true {
 		fitnessDenominator := utils.Sum(fitnessSpace...)
 		for i := range fitnessSpace {
@@ -52,8 +52,8 @@ func SeqSpaceToFitSpace(ancSeqSpace [][]int, fitnessMatrix [][]float64, totalFit
 }
 
 // SeqSpaceToLogFitSpace
-func SeqSpaceToLogFitSpace(ancSeqSpace [][]int, fitnessMatrix [][]float64, totalFitnessFunc FitnessFunc, normalized bool) []float64 {
-	fitnessSpace := seqSpaceToFitSpace(ancSeqSpace, fitnessMatrix, totalFitnessFunc)
+func SeqSpaceToLogFitSpace(seqSpace [][]int, fitnessMatrix [][]float64, totalFitnessFunc FitnessFunc, normalized bool) []float64 {
+	fitnessSpace := seqSpaceToFitSpace(seqSpace, fitnessMatrix, totalFitnessFunc)
 	if normalized == true {
 		fitnessDenominator := math.Log(utils.Sum(fitnessSpace...))
 		for i := range fitnessSpace {
@@ -63,21 +63,21 @@ func SeqSpaceToLogFitSpace(ancSeqSpace [][]int, fitnessMatrix [][]float64, total
 	return fitnessSpace
 }
 
-func seqSpaceToFitSpace(ancSeqSpace [][]int, fitnessMatrix [][]float64, totalFitnessFunc FitnessFunc) []float64 {
-	if len(ancSeqSpace) == 0 {
-		panic("Length of ancSeqSpace must be greater than zero")
+func seqSpaceToFitSpace(seqSpace [][]int, fitnessMatrix [][]float64, totalFitnessFunc FitnessFunc) []float64 {
+	if len(seqSpace) == 0 {
+		panic("Length of seqSpace must be greater than zero")
 	} else {
-		if len(ancSeqSpace[0]) == 0 {
-			panic("Length of rows in ancSeqSpace must be greater than zero")
+		if len(seqSpace[0]) == 0 {
+			panic("Length of rows in seqSpace must be greater than zero")
 		}
 	}
 	if len(fitnessMatrix) == 0 {
 		panic("Length of fitnessMatrix must be greater than zero")
 	}
 
-	fitnessSpace := make([]float64, len(ancSeqSpace))
+	fitnessSpace := make([]float64, len(seqSpace))
 
-	for i, seq := range ancSeqSpace {
+	for i, seq := range seqSpace {
 		fitnessSpace[i] = totalFitnessFunc(seq)
 	}
 	return fitnessSpace
