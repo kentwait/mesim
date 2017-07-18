@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"mesim/sampler"
 	"mesim/utils"
+	"sort"
 )
 
 // EvolveChar
@@ -126,4 +127,48 @@ func MutateSeqSpace(seqSpace *[][]int, mu float64, rateMatrix [][]float64) {
 			(*seqSpace)[seqIdx][siteIdx] = newChar
 		}
 	}
+}
+
+// RecombineSeqSpace
+func RecombineSeqSpace(seqSpace *[][]int, r float64) {
+	// Randomly pick (by permutation) sequence pairs
+	popSize := len(*seqSpace)
+	numSites := len((*seqSpace)[0]) - 1 // One less site because we are counting breakpoints
+	permSampleIndexes := rand.Perm(popSize)
+
+	// For each sequence pair, determine number of recombination events e
+	var numEvents int
+	var s1Ptr, s2Ptr *[]int
+	var newS1, newS2, permSites []int
+	sameOrientation := true
+	for i := 0; i < popSize; i += 2 {
+		numEvents = sampler.BinomialSample(numSites, r)
+
+		// For each sequence pair, randomly pick (by permutation) breakpoints
+		if numEvents > 0 {
+			if rand.Float64() > 0.5 {
+				s1Ptr, s2Ptr = &(*seqSpace)[permSampleIndexes[i]], &(*seqSpace)[permSampleIndexes[i+1]]
+			} else {
+				s2Ptr, s1Ptr = &(*seqSpace)[permSampleIndexes[i]], &(*seqSpace)[permSampleIndexes[i+1]]
+			}
+			permSites = rand.Perm(numSites)[:numEvents] // +1 so that lowest breakpoint is [0:1] and highest is [-1:]
+			sort.Ints(permSites)
+
+			sameOrientation = true
+			for _, pos := range permSites {
+				if sameOrientation == true {
+					newS1 = append(newS1, (*s1Ptr)[:pos]...)
+					newS2 = append(newS1, (*s2Ptr)[:pos]...)
+				} else {
+					newS2 = append(newS1, (*s1Ptr)[:pos]...)
+					newS1 = append(newS1, (*s2Ptr)[:pos]...)
+				}
+				sameOrientation = false
+			}
+			(*seqSpace)[i] = newS1
+			(*seqSpace)[i+1] = newS2
+		}
+
+	}
+
 }
