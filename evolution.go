@@ -1,6 +1,7 @@
 package mesim
 
 import (
+	rand "math/rand"
 	sampler "mesim/sampler"
 	utils "mesim/utils"
 )
@@ -71,4 +72,32 @@ func ReplicateSelect(ancSeqSpace [][]int64, nextPopSize int64, fitnessMatrix [][
 		}
 	}
 	return newSeqSpace
+}
+
+// MutateSeqSpace
+func MutateSeqSpace(seqSpace *[][]int64, mu float64, rateMatrix [][]float64) {
+	if len(*seqSpace) == 0 {
+		panic("Length of ancSeqSpace must be greater than zero")
+	} else {
+		if len((*seqSpace)[0]) == 0 {
+			panic("Length of rows in ancSeqSpace must be greater than zero")
+		}
+	}
+	popSize := len(*seqSpace)
+	numSites := len((*seqSpace)[0])
+	muPerSeq := mu * float64(numSites)
+
+	// Returns two arrays, array[0] is sequence ID, array[1] always 0, array[2] is numbe rof hits
+	hitsPerSeq := sampler.PoissonMutCoords(muPerSeq, int64(popSize), int64(1))
+
+	var permSites, seqIdx []int
+	for i, hits := range hitsPerSeq[2] {
+		permSites = rand.Perm(numSites)
+		seqIdx = int(hitsPerSeq[0][i])
+		for _, siteIdx := range permSites[:hits] {
+			char = (*seqSpace)[seqIdx][siteIdx]
+			newChar = sampler.MultinomialWhere(int64(1), rateMatrix[char], int64(1))[0]
+			(*seqSpace)[seqIdx][siteIdx] = newChar
+		}
+	}
 }
