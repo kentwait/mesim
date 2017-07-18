@@ -3,21 +3,21 @@ package sampler
 import (
 	"math"
 	"math/rand"
-	"sort"
 )
 
 // Multinomial draws a sample from a multinomial distribution.
 func Multinomial(n int, p []float64) []int {
+	trials := 10000
 	// If n * len(p) > 1000, uses concurrency
-	if n*len(p) > 1000 {
+	if n*len(p) > trials {
 		workers := 0
 		resultChan := make(chan []int)
 
-		for n > 1000 {
+		for n > trials {
 			go func() {
-				resultChan <- multinomial(1000, p)
+				resultChan <- multinomial(trials, p)
 			}()
-			n -= 1000
+			n -= trials
 			workers++
 		}
 		go func() {
@@ -40,16 +40,17 @@ func Multinomial(n int, p []float64) []int {
 
 // Multinomial draws a sample from a multinomial distribution.
 func MultinomialLog(n int, p []float64) []int {
+	trials := 10000
 	// If n * len(p) > 1000, uses concurrency
-	if n*len(p) > 1000 {
+	if n*len(p) > trials {
 		workers := 0
 		resultChan := make(chan []int)
 
-		for n > 1000 {
+		for n > trials {
 			go func() {
-				resultChan <- multinomialLog(1000, p)
+				resultChan <- multinomialLog(trials, p)
 			}()
-			n -= 1000
+			n -= trials
 			workers++
 		}
 		go func() {
@@ -84,6 +85,7 @@ func MultinomialWhere(n int, p []float64, cnt int) (result []int) {
 func multinomial(n int, p []float64) []int {
 	result := make([]int, len(p))
 	cumP := make([]float64, len(p))
+	lastIdx := len(p) - 1
 
 	// Create a cummulative distribution of p
 	cumP[0] = p[0]
@@ -100,8 +102,8 @@ func multinomial(n int, p []float64) []int {
 			if x < cumP[j] {
 				result[j]++
 				break
-			} else if x == 1.0 {
-				result[len(p)]++
+			} else if x > cumP[lastIdx] && x <= 1.0 {
+				result[lastIdx]++
 				break
 			}
 		}
@@ -109,35 +111,29 @@ func multinomial(n int, p []float64) []int {
 	return result
 }
 
-type Pair struct {
-	pos   int
-	value float64
-}
-
-type ByValue []Pair
-
-func (p ByValue) Len() int           { return len(p) }
-func (p ByValue) Less(i, j int) bool { return p[i].value < p[j].value }
-func (p ByValue) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
-
 func multinomialLog(n int, logP []float64) []int {
 	result := make([]int, len(logP))
-	iLogP := make([]Pair, len(logP)) // Indexed logP
-	var highestP Pair
-	for i, v := range logP {
-		iLogP[i] = Pair{i, v}
-	}
-	sort.Sort(ByValue(iLogP))
-	for i := 0; i < n; i++ {
-		x := math.Log(rand.Float64())
+	cumP := make([]float64, len(logP))
+	lastIdx := len(logP) - 1
 
-		for _, p := range iLogP {
-			if x < p.value {
-				result[p.pos]++
+	// Create a cummulative distribution of p
+	cumP[0] = math.Exp(logP[0])
+	for i := 1; i < len(logP); i++ {
+		cumP[i] = cumP[i-1] + math.Exp(logP[i])
+	}
+
+	// fmt.Println(cumP)
+	for i := 0; i < n; i++ {
+		// Generate pseudorandom number
+		x := rand.Float64()
+
+		// for j; e := range cumP {
+		for j := 0; j < len(cumP); j++ {
+			if x < cumP[j] {
+				result[j]++
 				break
-			} else if x == 0.0 {
-				highestP = iLogP[len(logP)]
-				result[highestP.pos]++
+			} else if x > cumP[lastIdx] && x <= 1.0 {
+				result[lastIdx]++
 				break
 			}
 		}
