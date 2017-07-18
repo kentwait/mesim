@@ -1,6 +1,7 @@
 package mesim
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -130,6 +131,66 @@ func TestSeqSpaceToFitSpace(t *testing.T) {
 
 }
 
+func TestReplicateSelect(t *testing.T) {
+	seqSpace := [][]int{
+		[]int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		[]int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		[]int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		[]int{1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		[]int{1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		[]int{1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	}
+	newSeqSpace := [][]int{
+		[]int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		[]int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		[]int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		[]int{1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		[]int{1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		[]int{1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	}
+	nextPopSize := len(newSeqSpace) // 6
+	fitnessMatrix := [][]float64{
+		[]float64{1.0, 1.5, 1.0, 1.0}, // Fitness of 1 at pos 0 is 2x baseline
+		[]float64{1.0, 1.0, 1.0, 1.0},
+		[]float64{1.0, 1.0, 1.0, 1.0},
+		[]float64{1.0, 1.0, 1.0, 1.0},
+		[]float64{1.0, 1.0, 1.0, 1.0},
+		[]float64{1.0, 1.0, 1.0, 1.0},
+		[]float64{1.0, 1.0, 1.0, 1.0},
+		[]float64{1.0, 1.0, 1.0, 1.0},
+		[]float64{1.0, 1.0, 1.0, 1.0},
+		[]float64{1.0, 1.0, 1.0, 1.0},
+	}
+	fitnessFunction := func(seq []int) (multSum float64) {
+		multSum = float64(1)
+		for i, char := range seq {
+			multSum *= float64(fitnessMatrix[i][char])
+		}
+		return
+	}
+
+	var tempSeqSpace [][]int
+	for i := 0; i < 100; i++ {
+		fmt.Println(tempSeqSpace)
+		tempSeqSpace = ReplicateSelect(newSeqSpace, nextPopSize, fitnessMatrix, fitnessFunction)
+		newSeqSpace = tempSeqSpace
+	}
+
+	diffCnt := 0
+	for i := range newSeqSpace {
+		for j := range newSeqSpace[i] {
+			if seqSpace[i][j] != newSeqSpace[i][j] {
+				diffCnt++
+			}
+		}
+	}
+	if diffCnt == 0 {
+		t.Errorf("TestReplicateSelect(newSeqSpace, %d, fitnessMatrix, fitnessFunction): original seqSpace should not be equal to result newSeqSpace", nextPopSize)
+		t.Error(seqSpace, newSeqSpace)
+	}
+
+}
+
 func TestMutateSeqSpace(t *testing.T) {
 	ancSeqSpace := [][]int{
 		[]int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -167,7 +228,7 @@ func TestMutateSeqSpace(t *testing.T) {
 		}
 	}
 	if diffCnt == 0 {
-		t.Errorf("EvolveExplicit(ancSeqSpace, %f, rateMatrix): ancSeqSpace should not be equal to result evolvedSeqSpace", mu)
+		t.Errorf("TestMutateSeqSpace(ancSeqSpace, %f, rateMatrix): ancSeqSpace should not be equal to result evolvedSeqSpace", mu)
 		t.Error(ancSeqSpace, evolvedSeqSpace)
 	}
 }
