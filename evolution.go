@@ -1,7 +1,8 @@
-package main
+package mesim
 
 import (
 	sampler "mesim/sampler"
+
 )
 
 // EvolveExplicit
@@ -24,9 +25,5 @@ func EvolveFast(ancArray *[]int64, mu float64, zeroedRateMatrix [][]float64) {
 			(*ancArray)[xPos] = tmpArray[i]
 		}
 	}
-
-}
-
-func main() {
 
 }
