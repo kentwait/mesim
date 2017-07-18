@@ -1,7 +1,9 @@
 package sampler
 
 import (
+	"math"
 	"math/rand"
+	"sort"
 )
 
 // Multinomial draws a sample from a multinomial distribution.
@@ -75,11 +77,38 @@ func multinomial(n int, p []float64) []int {
 	return result
 }
 
+type Pair struct {
+	pos   int
+	value float64
+}
+
+type ByValue []Pair
+
+func (p ByValue) Len() int           { return len(p) }
+func (p ByValue) Less(i, j int) bool { return p[i].value < p[j].value }
+func (p ByValue) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
+
 func multinomialLog(n int, logP []float64) []int {
 	result := make([]int, len(logP))
-
+	iLogP := make([]Pair, len(logP)) // Indexed logP
+	var highestP Pair
+	for i, v := range logP {
+		iLogP[i] = Pair{i, v}
+	}
+	sort.Sort(ByValue(iLogP))
 	for i := 0; i < n; i++ {
+		x := math.Log(rand.Float64())
 
+		for _, p := range iLogP {
+			if x < p.value {
+				result[p.pos]++
+				break
+			} else if x == 0.0 {
+				highestP = iLogP[len(logP)]
+				result[highestP.pos]++
+				break
+			}
+		}
 	}
 	return result
 }
