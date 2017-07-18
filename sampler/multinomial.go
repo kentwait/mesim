@@ -5,21 +5,21 @@ import (
 	"math/rand"
 )
 
-// Multinomial draws a sample from a multinomial distribution.
-func Multinomial(n int, p []float64) (result []int) {
+// MultinomialSample draws a sample from a multinomial distribution.
+func MultinomialSample(n int, p []float64) (result []int) {
 	result = generalMultinomial(n, p, false)
 	return result
 }
 
-// MultinomialLog draws a sample from a multinomial distribution.
-func MultinomialLog(n int, p []float64) (result []int) {
+// MultinomialLogSample draws a sample from a multinomial distribution.
+func MultinomialLogSample(n int, p []float64) (result []int) {
 	result = generalMultinomial(n, p, true)
 	return result
 }
 
 // MultinomialWhere returns the coordinates equal to the given value
 func MultinomialWhere(n int, p []float64, cnt int) (result []int) {
-	for i, hit := range Multinomial(n, p) {
+	for i, hit := range MultinomialSample(n, p) {
 		if hit == cnt {
 			result = append(result, i)
 		}

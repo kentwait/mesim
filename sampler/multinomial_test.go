@@ -15,7 +15,7 @@ func TestMultinomial(t *testing.T) {
 	rand.Seed(int64(seed))
 
 	for i := 0; i < times; i++ {
-		samples[i] = Multinomial(n, p)
+		samples[i] = MultinomialSample(n, p)
 	}
 
 	// Average
@@ -61,7 +61,7 @@ func TestMultinomialLog(t *testing.T) {
 	rand.Seed(int64(seed))
 
 	for i := 0; i < times; i++ {
-		samples[i] = MultinomialLog(n, logP)
+		samples[i] = MultinomialLogSample(n, logP)
 	}
 
 	// Average

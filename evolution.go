@@ -86,7 +86,7 @@ func seqSpaceToFitSpace(seqSpace [][]int, fitnessMatrix [][]float64, totalFitnes
 // ReplicateSelect
 func ReplicateSelect(ancSeqSpace [][]int, nextPopSize int, fitnessMatrix [][]float64, totalFitnessFunc FitnessFunc) [][]int {
 	normedFitSpace := SeqSpaceToFitSpace(ancSeqSpace, fitnessMatrix, totalFitnessFunc, true)
-	ancSeqSpaceCnts := sampler.Multinomial(nextPopSize, normedFitSpace)
+	ancSeqSpaceCnts := sampler.MultinomialSample(nextPopSize, normedFitSpace)
 
 	newSeqSpace := make([][]int, len(ancSeqSpace))
 	idxOffset := 0
