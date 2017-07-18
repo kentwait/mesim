@@ -9,15 +9,14 @@ import (
 // PoissonMutArray samples from a Poisson distribution and
 // returns a 2-d array of Poisson random variables
 // whose rows represent individuals and columns represent sites.
-func PoissonMutArray(mu float64, nSites, popSize int64) [][]int64 {
-	var result [][]int64
-	tmp := make([]int64, nSites*popSize)
+func PoissonMutArray(mu float64, nSites, popSize int) (result [][]int) {
+	tmp := make([]int, nSites*popSize)
 	n := nSites * popSize
-	blockSize := int64(1e6) //TODO : Optimize block size
+	blockSize := int(1e6) //TODO : Optimize block size
 
 	if n > blockSize {
 		workers := 0
-		resultChan := make(chan []int64)
+		resultChan := make(chan []int)
 
 		for n > blockSize {
 			go func() {
@@ -38,7 +37,7 @@ func PoissonMutArray(mu float64, nSites, popSize int64) [][]int64 {
 		tmp = poissonMutArray(mu, nSites*popSize)
 	}
 
-	for i := int64(0); i < n; i += nSites {
+	for i := 0; i < n; i += nSites {
 		result = append(result, tmp[i:i+nSites])
 	}
 	return result
@@ -47,53 +46,53 @@ func PoissonMutArray(mu float64, nSites, popSize int64) [][]int64 {
 // poissonMutArray is the base function of PoissonMutArray.
 // It calls the PoissonSampler function to generate a set of Poisson
 // random variables.
-func poissonMutArray(mu float64, n int64) []int64 {
-	result := make([]int64, n)
+func poissonMutArray(mu float64, n int) []int {
+	result := make([]int, n)
 
-	for i := int64(0); i < n; i++ {
+	for i := 0; i < n; i++ {
 		result[i] = PoissonSampler(mu)
 	}
 	return result
 }
 
 //PoissonMutCoords
-func PoissonMutCoordsFromArray(arr [][]int64) [][]int64 {
-	var xArray, yArray, value []int64
+func PoissonMutCoordsFromArray(arr [][]int) [][]int {
+	var xArray, yArray, value []int
 
 	for m, col := range arr {
 		for n, v := range col {
 			if v > 0 {
-				xArray = append(xArray, int64(m))
-				yArray = append(yArray, int64(n))
+				xArray = append(xArray, m)
+				yArray = append(yArray, n)
 				value = append(value, v)
 			}
 		}
 	}
-	result := [][]int64{xArray, yArray, value}
+	result := [][]int{xArray, yArray, value}
 	return result
 }
 
 //PoissonMutCoords
-func PoissonMutCoords(mu float64, nSites, popSize int64) [][]int64 {
-	var xArray, yArray, value []int64
+func PoissonMutCoords(mu float64, nSites, popSize int) [][]int {
+	var xArray, yArray, value []int
 	n := nSites * popSize
-	var v int64
-	for i := int64(0); i < n; i++ {
+	var v int
+	for i := 0; i < n; i++ {
 		v = PoissonSampler(mu)
 		if v > 0 {
-			var q, r = utils.DivMod(int64(i), int64(nSites))
+			var q, r = utils.DivMod(i, nSites)
 			xArray = append(xArray, q)
 			yArray = append(yArray, r)
 			value = append(value, v)
 		}
 	}
-	result := [][]int64{xArray, yArray, value}
+	result := [][]int{xArray, yArray, value}
 	return result
 }
 
 // PoissonSampler return a pseudorandom sample from a Poisson
 // distribution of lambda using the Knuth algorithm.
-func PoissonSampler(lambda float64) int64 {
+func PoissonSampler(lambda float64) int {
 	L := math.Exp(-1 * lambda)
 	k := 0
 	p := 1.
@@ -101,5 +100,5 @@ func PoissonSampler(lambda float64) int64 {
 		k++
 		p *= rand.Float64()
 	}
-	return int64(k - 1)
+	return int(k - 1)
 }
