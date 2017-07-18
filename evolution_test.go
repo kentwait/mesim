@@ -129,3 +129,45 @@ func TestSeqSpaceToFitSpace(t *testing.T) {
 	}
 
 }
+
+func TestMutateSeqSpace(t *testing.T) {
+	ancSeqSpace := [][]int{
+		[]int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		[]int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		[]int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		[]int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		[]int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	}
+	rateMatrix := [][]float64{
+		[]float64{0.00, 0.34, 0.33, 0.33},
+		[]float64{0.33, 0.00, 0.34, 0.33},
+		[]float64{0.33, 0.33, 0.00, 0.34},
+		[]float64{0.34, 0.33, 0.33, 0.00},
+	}
+	mu := 0.1
+
+	evolvedSeqSpace := make([][]int, len(ancSeqSpace))
+	for i := range ancSeqSpace {
+		evolvedSeqSpace[i] = make([]int, len(ancSeqSpace[i]))
+		for j := range ancSeqSpace[i] {
+			evolvedSeqSpace[i][j] = ancSeqSpace[i][j]
+		}
+	}
+
+	for i := 0; i < 10; i++ {
+		MutateSeqSpace(&evolvedSeqSpace, mu, rateMatrix)
+	}
+
+	diffCnt := 0
+	for i := range ancSeqSpace {
+		for j := range ancSeqSpace[i] {
+			if ancSeqSpace[i][j] != evolvedSeqSpace[i][j] {
+				diffCnt++
+			}
+		}
+	}
+	if diffCnt == 0 {
+		t.Errorf("EvolveExplicit(ancSeqSpace, %f, rateMatrix): ancSeqSpace should not be equal to result evolvedSeqSpace", mu)
+		t.Error(ancSeqSpace, evolvedSeqSpace)
+	}
+}
