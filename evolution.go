@@ -1,9 +1,10 @@
 package mesim
 
 import (
-	rand "math/rand"
-	sampler "mesim/sampler"
-	utils "mesim/utils"
+	"math"
+	"math/rand"
+	"mesim/sampler"
+	"mesim/utils"
 )
 
 // EvolveChar
@@ -61,6 +62,34 @@ func SeqSpaceToFitSpace(ancSeqSpace [][]int, fitnessMatrix [][]float64, totalFit
 		fitnessDenominator := utils.Sum(fitnessSpace...)
 		for i := range fitnessSpace {
 			fitnessSpace[i] = fitnessSpace[i] / fitnessDenominator
+		}
+	}
+	return fitnessSpace
+}
+
+// SeqSpaceToLogFitSpace
+func SeqSpaceToLogFitSpace(ancSeqSpace [][]int, fitnessMatrix [][]float64, totalFitnessFunc FitnessFunc, normalized bool) []float64 {
+	if len(ancSeqSpace) == 0 {
+		panic("Length of ancSeqSpace must be greater than zero")
+	} else {
+		if len(ancSeqSpace[0]) == 0 {
+			panic("Length of rows in ancSeqSpace must be greater than zero")
+		}
+	}
+	if len(fitnessMatrix) == 0 {
+		panic("Length of fitnessMatrix must be greater than zero")
+	}
+
+	fitnessSpace := make([]float64, len(ancSeqSpace))
+
+	for i, seq := range ancSeqSpace {
+		fitnessSpace[i] = totalFitnessFunc(seq)
+	}
+
+	if normalized == true {
+		fitnessDenominator := math.Log(utils.Sum(fitnessSpace...))
+		for i := range fitnessSpace {
+			fitnessSpace[i] = fitnessSpace[i] - fitnessDenominator
 		}
 	}
 	return fitnessSpace
