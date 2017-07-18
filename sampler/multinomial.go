@@ -5,11 +5,11 @@ import (
 )
 
 // Multinomial draws a sample from a multinomial distribution.
-func Multinomial(n int64, p []float64) []int64 {
+func Multinomial(n int, p []float64) []int {
 	// If n * len(p) > 1000, uses concurrency
-	if n*int64(len(p)) > int64(1000) {
+	if n*len(p) > 1000 {
 		workers := 0
-		resultChan := make(chan []int64)
+		resultChan := make(chan []int)
 
 		for n > 1000 {
 			go func() {
@@ -23,7 +23,7 @@ func Multinomial(n int64, p []float64) []int64 {
 		}()
 		workers++
 
-		result := make([]int64, len(p))
+		result := make([]int, len(p))
 		for i := 0; i < workers; i++ {
 			tmp := <-resultChan
 			for j := 0; j < len(result); j++ {
@@ -37,18 +37,18 @@ func Multinomial(n int64, p []float64) []int64 {
 }
 
 // MultinomialWhere returns the coordinates equal to the given value
-func MultinomialWhere(n int64, p []float64, cnt int64) (result []int64) {
+func MultinomialWhere(n int, p []float64, cnt int) (result []int) {
 	for i, hit := range Multinomial(n, p) {
 		if hit == cnt {
-			result = append(result, int64(i))
+			result = append(result, i)
 		}
 	}
 	return
 }
 
 // multinomial is the base function of Multinomial.
-func multinomial(n int64, p []float64) []int64 {
-	result := make([]int64, len(p))
+func multinomial(n int, p []float64) []int {
+	result := make([]int, len(p))
 	cumP := make([]float64, len(p))
 
 	// Create a cummulative distribution of p
@@ -57,7 +57,7 @@ func multinomial(n int64, p []float64) []int64 {
 		cumP[i] = cumP[i-1] + p[i]
 	}
 
-	for i := int64(0); i < n; i++ {
+	for i := 0; i < n; i++ {
 		// Generate pseudorandom number
 		x := rand.Float64()
 
