@@ -51,3 +51,33 @@ func TestEvolveExplicit(t *testing.T) {
 		t.Error(ancArray, evolvedArray)
 	}
 }
+
+func TestEvolveFast(t *testing.T) {
+	ancArray := []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0} // 10 0's
+	rateMatrix := [][]float64{
+		[]float64{0.00, 0.34, 0.33, 0.33},
+		[]float64{0.33, 0.00, 0.34, 0.33},
+		[]float64{0.33, 0.33, 0.00, 0.34},
+		[]float64{0.34, 0.33, 0.33, 0.00},
+	}
+	// Deepcopy ancArray
+	evolvedArray := make([]int, len(ancArray))
+	for i := range evolvedArray {
+		evolvedArray[i] = ancArray[i]
+	}
+
+	// EvolveExplicit for 10 rounds
+	for i := 0; i < 10; i++ {
+		EvolveFast(&evolvedArray, 0.99, rateMatrix)
+	}
+	diffCnt := 0
+	for i := range ancArray {
+		if ancArray[i] != evolvedArray[i] {
+			diffCnt++
+		}
+	}
+	if diffCnt == 0 {
+		t.Error("ancArray should not be equal to evolvedArray")
+		t.Error(ancArray, evolvedArray)
+	}
+}
