@@ -1,4 +1,4 @@
-gopackage sampler
+package sampler
 
 import (
 	"math"
@@ -77,9 +77,10 @@ func PoissonMutCoordsFromArray(arr [][]int64) [][]int64 {
 func PoissonMutCoords(mu float64, nSites, popSize int64) [][]int64 {
 	var xArray, yArray, value []int64
 	n := nSites * popSize
-
+	var v int64
 	for i := int64(0); i < n; i++ {
-		if v := PoissonSampler(mu) > 0 {
+		v = PoissonSampler(mu)
+		if v > 0 {
 			var q, r = utils.DivMod(int64(i), int64(nSites))
 			xArray = append(xArray, q)
 			yArray = append(yArray, r)
