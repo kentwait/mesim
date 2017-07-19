@@ -3,7 +3,6 @@ package sampler
 import (
 	"math"
 	"math/rand"
-	utils "mesim/utils"
 )
 
 // BinomialSample
@@ -16,15 +15,16 @@ func BinomialSample(n int, p float64) int {
 // BinomialMutCoords
 func BinomialMutCoords(mu float64, nSites, popSize int) [][]int {
 	var xArray, yArray, value []int
-	n := nSites * popSize
 	var v int
-	for i := 0; i < n; i++ {
-		v = BinomialSample(1, mu)
-		if v > 0 {
-			var q, r = utils.DivMod(i, nSites)
-			xArray = append(xArray, q)
-			yArray = append(yArray, r)
-			value = append(value, v)
+	for i := 0; i < popSize; i++ {
+		for j := 0; j < nSites; j++ {
+			v = BinomialSample(1, mu)
+			if v > 0 {
+				xArray = append(xArray, i)
+				yArray = append(yArray, j)
+				value = append(value, v)
+			}
+
 		}
 	}
 	result := [][]int{xArray, yArray, value}
