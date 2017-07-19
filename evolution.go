@@ -1,6 +1,7 @@
 package mesim
 
 import (
+	"fmt"
 	"math"
 	"math/rand"
 	"mesim/sampler"
@@ -137,38 +138,53 @@ func RecombineSeqSpace(seqSpace *[][]int, r float64) {
 	permSampleIndexes := rand.Perm(popSize)
 
 	// For each sequence pair, determine number of recombination events e
-	var numEvents int
+	var numEvents, seqID1, seqID2, startPos int
 	var s1Ptr, s2Ptr *[]int
 	var newS1, newS2, permSites []int
-	sameOrientation := true
+	orientation := true
 	for i := 0; i < popSize; i += 2 {
 		numEvents = sampler.BinomialSample(numSites, r)
 
 		// For each sequence pair, randomly pick (by permutation) breakpoints
+		fmt.Println("numEvents", numEvents)
 		if numEvents > 0 {
-			if rand.Float64() > 0.5 {
-				s1Ptr, s2Ptr = &(*seqSpace)[permSampleIndexes[i]], &(*seqSpace)[permSampleIndexes[i+1]]
-			} else {
-				s2Ptr, s1Ptr = &(*seqSpace)[permSampleIndexes[i]], &(*seqSpace)[permSampleIndexes[i+1]]
-			}
+			seqID1 = permSampleIndexes[i]
+			seqID2 = permSampleIndexes[i+1]
+			startPos = 0
+			newS1 = []int{}
+			newS2 = []int{}
+			orientation = true
+			fmt.Println("seq1", seqID1, "seq2", seqID2)
+
+			s1Ptr, s2Ptr = &(*seqSpace)[seqID1], &(*seqSpace)[seqID2]
+
 			permSites = rand.Perm(numSites)[:numEvents] // +1 so that lowest breakpoint is [0:1] and highest is [-1:]
 			sort.Ints(permSites)
 
-			sameOrientation = true
+			fmt.Println("bp sites", permSites)
 			for _, pos := range permSites {
-				if sameOrientation == true {
-					newS1 = append(newS1, (*s1Ptr)[:pos]...)
-					newS2 = append(newS1, (*s2Ptr)[:pos]...)
+				if orientation == true {
+					newS1 = append(newS1, (*s1Ptr)[startPos:pos]...)
+					newS2 = append(newS2, (*s2Ptr)[startPos:pos]...)
+					orientation = false
 				} else {
-					newS2 = append(newS1, (*s1Ptr)[:pos]...)
-					newS1 = append(newS1, (*s2Ptr)[:pos]...)
+					newS1 = append(newS1, (*s2Ptr)[startPos:pos]...)
+					newS2 = append(newS2, (*s1Ptr)[startPos:pos]...)
+					orientation = true
 				}
-				sameOrientation = false
+				startPos = pos
 			}
-			(*seqSpace)[i] = newS1
-			(*seqSpace)[i+1] = newS2
+			if orientation == true {
+				newS1 = append(newS1, (*s1Ptr)[startPos:]...)
+				newS2 = append(newS2, (*s2Ptr)[startPos:]...)
+				orientation = false
+			} else {
+				newS1 = append(newS1, (*s2Ptr)[startPos:]...)
+				newS2 = append(newS2, (*s1Ptr)[startPos:]...)
+				orientation = true
+			}
+			(*seqSpace)[seqID1] = newS1
+			(*seqSpace)[seqID2] = newS2
 		}
-
 	}
-
 }
