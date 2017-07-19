@@ -6,44 +6,44 @@ import (
 )
 
 // MutateChar
-func MutateChar(char *int, rateMatrix [][]float64) {
-	*char = sampler.MultinomialWhere(1, rateMatrix[*char], 1)[0]
+func MutateChar(charPtr *int, rateMatrix [][]float64) {
+	*charPtr = sampler.MultinomialWhere(1, rateMatrix[*charPtr], 1)[0]
 }
 
 // MutateSeqExplicitly
-func MutateSeqExplicitly(ancArray *[]int, rateMatrix [][]float64) {
-	for i, char := range *ancArray {
-		(*ancArray)[i] = sampler.MultinomialWhere(1, rateMatrix[char], 1)[0]
+func MutateSeqExplicitly(ancArrayPtr *[]int, rateMatrix [][]float64) {
+	for i, char := range *ancArrayPtr {
+		(*ancArrayPtr)[i] = sampler.MultinomialWhere(1, rateMatrix[char], 1)[0]
 	}
 }
 
 // MutateSeqFast
-func MutateSeqFast(ancArray *[]int, mu float64, zeroedRateMatrix [][]float64) {
-	mutCoords := sampler.PoissonMutCoords(mu, len(*ancArray), 1)
+func MutateSeqFast(ancArrayPtr *[]int, mu float64, zeroedRateMatrix [][]float64) {
+	mutCoords := sampler.PoissonMutCoords(mu, len(*ancArrayPtr), 1)
 	var tmpArray []int
 	if len(mutCoords) > 0 {
 		for _, yPos := range mutCoords[1] {
-			tmpArray = append(tmpArray, (*ancArray)[yPos])
+			tmpArray = append(tmpArray, (*ancArrayPtr)[yPos])
 		}
 		MutateSeqExplicitly(&tmpArray, zeroedRateMatrix)
 		for i, xPos := range mutCoords[0] {
-			(*ancArray)[xPos] = tmpArray[i]
+			(*ancArrayPtr)[xPos] = tmpArray[i]
 		}
 	}
 
 }
 
 // MutateSeqSpace
-func MutateSeqSpace(seqSpace *[][]int, mu float64, rateMatrix [][]float64) {
-	if len(*seqSpace) == 0 {
-		panic("Length of ancSeqSpace must be greater than zero")
+func MutateSeqSpace(seqSpacePtr *[][]int, mu float64, rateMatrix [][]float64) {
+	if len(*seqSpacePtr) == 0 {
+		panic("Length of seqSpace must be greater than zero")
 	} else {
-		if len((*seqSpace)[0]) == 0 {
-			panic("Length of rows in ancSeqSpace must be greater than zero")
+		if len((*seqSpacePtr)[0]) == 0 {
+			panic("Length of rows in seqSpace must be greater than zero")
 		}
 	}
-	popSize := len(*seqSpace)
-	numSites := len((*seqSpace)[0])
+	popSize := len(*seqSpacePtr)
+	numSites := len((*seqSpacePtr)[0])
 	muPerSeq := mu * float64(numSites)
 
 	// Returns two arrays, array[0] is always 0, array[1] is column coords, array[2] is number of hits
@@ -55,9 +55,9 @@ func MutateSeqSpace(seqSpace *[][]int, mu float64, rateMatrix [][]float64) {
 		permSites = rand.Perm(numSites)
 		seqIdx = hitsPerSeq[0][i]
 		for _, siteIdx := range permSites[:hits] {
-			char = (*seqSpace)[seqIdx][siteIdx]
+			char = (*seqSpacePtr)[seqIdx][siteIdx]
 			newChar = sampler.MultinomialWhere(1, rateMatrix[char], 1)[0]
-			(*seqSpace)[seqIdx][siteIdx] = newChar
+			(*seqSpacePtr)[seqIdx][siteIdx] = newChar
 		}
 	}
 }
