@@ -1,5 +1,115 @@
-func TestEvolveChar(t *testing.T) {
+package mesim
+
+import (
+	"testing"
+)
+
+// Following tests different scenarios for the MutateChar function
+
+// Test change from character 0 to 1 given that this is the only change
+// possible based on the given transition rate matrix.
+func TestMutateChar0To1(t *testing.T) {
 	ancChar := 0
+	// transition rate matrix guarantees change from 0 to 1
+	rateMatrix := [][]float64{
+		[]float64{0.0, 1.0, 0.0, 0.0},
+		[]float64{0.0, 0.0, 0.0, 0.0},
+		[]float64{0.0, 0.0, 0.0, 0.0},
+		[]float64{0.0, 0.0, 0.0, 0.0},
+	}
+
+	var newChar int
+	// EvolveChar for 10 rounds
+	for i := 0; i < 10; i++ {
+		newChar = ancChar
+		MutateChar(&newChar, rateMatrix)
+		if newChar != 1 {
+			t.Errorf("EvolveChar(%d): expected 1, actual (%d)", ancChar, newChar)
+		}
+	}
+}
+
+// Test change from character 0 to 1 or 2 given that this is the only
+// change possible based on the given transition rate matrix.
+// There is an equal probability of changing to 1 or to 2.
+func TestMutateChar0To1Or2(t *testing.T) {
+	ancChar := 0
+	// transition rate matrix guarantees change from 0 to 1 or 2
+	// with equal probability
+	rateMatrix := [][]float64{
+		[]float64{0.0, 0.5, 0.5, 0.0},
+		[]float64{0.0, 0.0, 0.0, 0.0},
+		[]float64{0.0, 0.0, 0.0, 0.0},
+		[]float64{0.0, 0.0, 0.0, 0.0},
+	}
+
+	var newChar int
+	// EvolveChar for 10 rounds
+	for i := 0; i < 10; i++ {
+		newChar = ancChar
+		MutateChar(&newChar, rateMatrix)
+		if newChar != 1 && newChar != 2 {
+			t.Errorf("EvolveChar(%d): expected 1 or 2, actual (%d)", ancChar, newChar)
+		}
+	}
+}
+
+// Test if character 0 will change given that the transition rate matrix
+// does not allow it.
+func TestMutateCharNoChange(t *testing.T) {
+	ancChar := 0
+	// transition rate matrix guarantees no transition
+	rateMatrix := [][]float64{
+		[]float64{1.0, 0.0, 0.0, 0.0},
+		[]float64{0.0, 1.0, 0.0, 0.0},
+		[]float64{0.0, 0.0, 1.0, 0.0},
+		[]float64{0.0, 0.0, 0.0, 1.0},
+	}
+
+	var newChar int
+	// EvolveChar for 10 rounds
+	for i := 0; i < 10; i++ {
+		newChar = ancChar
+		MutateChar(&newChar, rateMatrix)
+		if newChar != ancChar {
+			t.Errorf("EvolveChar(%d): expected 0, actual (%d)", ancChar, newChar)
+		}
+	}
+}
+
+// Test if character 0 will change to any of the other characters given that
+// the given transition rate matrix only allows transitions.
+
+func TestMutateCharMustChange(t *testing.T) {
+	ancChar := 0
+	// transition rate matrix guarantees a transition
+	// always happens
+	rateMatrix := [][]float64{
+		[]float64{0.0, 0.3, 0.3, 0.4},
+		[]float64{0.4, 0.0, 0.3, 0.3},
+		[]float64{0.3, 0.4, 0.0, 0.3},
+		[]float64{0.3, 0.3, 0.4, 0.0},
+	}
+
+	var newChar int
+	// EvolveChar for 10 rounds
+	for i := 0; i < 10; i++ {
+		newChar = ancChar
+		MutateChar(&newChar, rateMatrix)
+		if newChar == ancChar {
+			t.Errorf("EvolveChar(%d): expected 1, 2, or 3, actual (%d)", ancChar, newChar)
+		}
+	}
+}
+
+// Test if character 0 after 10 rounds of successive mutations.
+// The given transition rate matrix allows both remaining the same character
+// or changing into a different character. However remaining the same has a
+// very low probability compared to changing.
+func TestMutateCharRandomChange(t *testing.T) {
+	ancChar := 0
+	// Small possibility that character will not change
+	// after one step
 	rateMatrix := [][]float64{
 		[]float64{0.001, 0.333, 0.333, 0.333},
 		[]float64{0.333, 0.001, 0.333, 0.333},
@@ -7,9 +117,9 @@ func TestEvolveChar(t *testing.T) {
 		[]float64{0.333, 0.333, 0.333, 0.001},
 	}
 	newChar := ancChar
-	// EvolveChar for 10 rounds
+	// Compound mutation for 10 rounds
 	for i := 0; i < 10; i++ {
-		newChar = MutateChar(newChar, rateMatrix)
+		MutateChar(&newChar, rateMatrix)
 	}
 	if ancChar == newChar {
 		t.Errorf("EvolveChar(%d): expected 1, 2, or 3, actual (%d)", ancChar, newChar)
