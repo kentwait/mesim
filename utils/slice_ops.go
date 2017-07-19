@@ -17,6 +17,7 @@ func DeepCopyInts2d(s [][]int) [][]int {
 }
 
 func CompareIntSlices(slice1, slice2 []int) (same bool, diffCoords []int) {
+	same = true
 	for i := range slice1 {
 		if slice1[i] != slice2[i] {
 			diffCoords = append(diffCoords, i)
@@ -28,6 +29,7 @@ func CompareIntSlices(slice1, slice2 []int) (same bool, diffCoords []int) {
 
 func CompareIntMatrix(matrix1, matrix2 [][]int) (same bool, diffCoords [][]int) {
 	var diffCoordsX, diffCoordsY []int
+	same = true
 
 	for i, row := range matrix1 {
 		for j := range row {
