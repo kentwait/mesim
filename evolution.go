@@ -186,3 +186,9 @@ func RecombineSeqSpace(seqSpace *[][]int, r float64) {
 		}
 	}
 }
+
+// EvolveSeqSpaceConstPop
+func EvolveSeqSpaceConstPop(seqSpace [][]int, mutationRate float64, recombinationRate float64, charTransitionMatrix [][]float64, fitnessFunc FitnessFunc) {
+	popSize := len(seqSpace)
+	newSeqSpace := ReplicateSelect(seqSpace, popSize)
+}
