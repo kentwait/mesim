@@ -35,18 +35,18 @@ func MutateSeqFast(seqArrayPtr *[]int, mu float64, zeroedRateMatrix [][]float64)
 	// Returns three arrays of equal lengths.
 	// array[0] is always 0, array[1] is column coords, and
 	// array[2] is number of hits
-	mutCoords := sampler.PoissonMutCoords(mu, len(*seqArrayPtr), 1)
-	var tmpArray []int
-	if len(mutCoords[2]) > 0 {
-		for _, yPos := range mutCoords[1] {
-			tmpArray = append(tmpArray, (*seqArrayPtr)[yPos])
-		}
-		MutateSeqExplicitly(&tmpArray, zeroedRateMatrix)
-		for i, xPos := range mutCoords[0] {
-			(*seqArrayPtr)[xPos] = tmpArray[i]
-		}
+	var mutCoords [][]int
+	if mu > 0.1 {
+		mutCoords = sampler.BinomialMutCoords(mu, len(*seqArrayPtr), 1)
+	} else {
+		mutCoords = sampler.PoissonMutCoords(mu, len(*seqArrayPtr), 1)
 	}
 
+	if len(mutCoords[2]) > 0 {
+		for _, yPos := range mutCoords[1] {
+			MutateChar(&(*seqArrayPtr)[yPos], zeroedRateMatrix)
+		}
+	}
 }
 
 // MutateSeqSpace mutates characters in the given sequence space
