@@ -11,6 +11,7 @@ func DeepCopyInts(s []int) []int {
 func DeepCopyInts2d(s [][]int) [][]int {
 	newCopy := make([][]int, len(s))
 	for i := range newCopy {
+		newCopy[i] = make([]int, len(s[i]))
 		newCopy[i] = DeepCopyInts(s[i])
 	}
 	return newCopy
