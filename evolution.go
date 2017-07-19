@@ -1,7 +1,6 @@
 package mesim
 
 import (
-	"fmt"
 	"math"
 	"math/rand"
 	"mesim/sampler"
@@ -143,10 +142,10 @@ func RecombineSeqSpace(seqSpace *[][]int, r float64) {
 	var newS1, newS2, permSites []int
 	orientation := true
 	for i := 0; i < popSize-1; i += 2 {
+		// Processing each pair could be made into a goroutine
 		numEvents = sampler.BinomialSample(numSites, r)
 
 		// For each sequence pair, randomly pick (by permutation) breakpoints
-		fmt.Println("numEvents", numEvents)
 		if numEvents > 0 {
 			seqID1 = permSampleIndexes[i]
 			seqID2 = permSampleIndexes[i+1]
@@ -154,14 +153,12 @@ func RecombineSeqSpace(seqSpace *[][]int, r float64) {
 			newS1 = []int{}
 			newS2 = []int{}
 			orientation = true
-			fmt.Println("seq1", seqID1, "seq2", seqID2)
 
 			s1Ptr, s2Ptr = &(*seqSpace)[seqID1], &(*seqSpace)[seqID2]
 
 			permSites = rand.Perm(numSites)[:numEvents] // +1 so that lowest breakpoint is [0:1] and highest is [-1:]
 			sort.Ints(permSites)
 
-			fmt.Println("bp sites", permSites)
 			for _, pos := range permSites {
 				pos++ // Lowest pos == 1, highest pos == len - 1
 				if orientation == true {
