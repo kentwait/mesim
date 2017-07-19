@@ -6,9 +6,8 @@ import (
 )
 
 // MutateChar
-func MutateChar(char int, rateMatrix [][]float64) (newChar int) {
-	newChar = sampler.MultinomialWhere(1, rateMatrix[char], 1)[0]
-	return
+func MutateChar(char *int, rateMatrix [][]float64) {
+	*char = sampler.MultinomialWhere(1, rateMatrix[*char], 1)[0]
 }
 
 // MutateSeqExplicitly
