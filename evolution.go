@@ -38,7 +38,7 @@ func MutateSeqFast(ancArray *[]int, mu float64, zeroedRateMatrix [][]float64) {
 }
 
 // FitnessFunc
-type FitnessFunc func([]int) float64
+type FitnessFunc func([]int, [][]float64) float64
 
 // SeqSpaceToFitSpace
 func SeqSpaceToFitSpace(seqSpace [][]int, fitnessMatrix [][]float64, totalFitnessFunc FitnessFunc, normalized bool) []float64 {
@@ -79,7 +79,7 @@ func seqSpaceToFitSpace(seqSpace [][]int, fitnessMatrix [][]float64, totalFitnes
 	fitnessSpace := make([]float64, len(seqSpace))
 
 	for i, seq := range seqSpace {
-		fitnessSpace[i] = totalFitnessFunc(seq)
+		fitnessSpace[i] = totalFitnessFunc(seq, fitnessMatrix)
 	}
 	return fitnessSpace
 }
@@ -188,7 +188,9 @@ func RecombineSeqSpace(seqSpace *[][]int, r float64) {
 }
 
 // EvolveSeqSpaceConstPop
-func EvolveSeqSpaceConstPop(seqSpace [][]int, mutationRate float64, recombinationRate float64, charTransitionMatrix [][]float64, fitnessFunc FitnessFunc) {
-	popSize := len(seqSpace)
-	newSeqSpace := ReplicateSelect(seqSpace, popSize)
+func EvolveSeqSpaceConstPop(seqSpace *[][]int, mutationRate float64, recombinationRate float64, charTransitionMatrix [][]float64, fitnessMatrix [][]float64, fitnessFunc FitnessFunc) {
+	popSize := len(*seqSpace)
+	*seqSpace = ReplicateSelect(*seqSpace, popSize, fitnessMatrix, fitnessFunc)
+	MutateSeqSpace(seqSpace, mutationRate, charTransitionMatrix)
+	RecombineSeqSpace(seqSpace, recombinationRate)
 }
