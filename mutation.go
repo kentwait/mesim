@@ -76,7 +76,12 @@ func MutateSeqSpace(seqSpacePtr *[][]int, mu float64, rateMatrix [][]float64) {
 	// Returns three arrays of equal lengths.
 	// array[0] is always 0, array[1] is column coords, and
 	// array[2] is number of hits
-	hitsPerSeq := sampler.PoissonMutCoords(muPerSeq, popSize, 1)
+	var hitsPerSeq [][]int
+	if mu > 0.1 {
+		hitsPerSeq = sampler.BinomialMutCoords(muPerSeq, popSize, 1)
+	} else {
+		hitsPerSeq = sampler.PoissonMutCoords(muPerSeq, popSize, 1)
+	}
 
 	var permSites []int
 	var seqIdx int
