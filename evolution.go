@@ -9,28 +9,28 @@ import (
 	"sort"
 )
 
-// EvolveChar
-func EvolveChar(char int, rateMatrix [][]float64) (newChar int) {
+// MutateChar
+func MutateChar(char int, rateMatrix [][]float64) (newChar int) {
 	newChar = sampler.MultinomialWhere(1, rateMatrix[char], 1)[0]
 	return
 }
 
-// EvolveExplicit
-func EvolveExplicit(ancArray *[]int, rateMatrix [][]float64) {
+// MutateSeqExplicitly
+func MutateSeqExplicitly(ancArray *[]int, rateMatrix [][]float64) {
 	for i, char := range *ancArray {
 		(*ancArray)[i] = sampler.MultinomialWhere(1, rateMatrix[char], 1)[0]
 	}
 }
 
-// EvolveFast
-func EvolveFast(ancArray *[]int, mu float64, zeroedRateMatrix [][]float64) {
+// MutateSeqFast
+func MutateSeqFast(ancArray *[]int, mu float64, zeroedRateMatrix [][]float64) {
 	mutCoords := sampler.PoissonMutCoords(mu, len(*ancArray), 1)
 	var tmpArray []int
 	if len(mutCoords) > 0 {
 		for _, yPos := range mutCoords[1] {
 			tmpArray = append(tmpArray, (*ancArray)[yPos])
 		}
-		EvolveExplicit(&tmpArray, zeroedRateMatrix)
+		MutateSeqExplicitly(&tmpArray, zeroedRateMatrix)
 		for i, xPos := range mutCoords[0] {
 			(*ancArray)[xPos] = tmpArray[i]
 		}
@@ -142,7 +142,7 @@ func RecombineSeqSpace(seqSpace *[][]int, r float64) {
 	var s1Ptr, s2Ptr *[]int
 	var newS1, newS2, permSites []int
 	orientation := true
-	for i := 0; i < popSize; i += 2 {
+	for i := 0; i < popSize-1; i += 2 {
 		numEvents = sampler.BinomialSample(numSites, r)
 
 		// For each sequence pair, randomly pick (by permutation) breakpoints
@@ -163,6 +163,7 @@ func RecombineSeqSpace(seqSpace *[][]int, r float64) {
 
 			fmt.Println("bp sites", permSites)
 			for _, pos := range permSites {
+				pos++ // Lowest pos == 1, highest pos == len - 1
 				if orientation == true {
 					newS1 = append(newS1, (*s1Ptr)[startPos:pos]...)
 					newS2 = append(newS2, (*s2Ptr)[startPos:pos]...)

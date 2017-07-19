@@ -1,6 +1,7 @@
 package mesim
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -15,7 +16,7 @@ func TestEvolveChar(t *testing.T) {
 	newChar := ancChar
 	// EvolveChar for 10 rounds
 	for i := 0; i < 10; i++ {
-		newChar = EvolveChar(newChar, rateMatrix)
+		newChar = MutateChar(newChar, rateMatrix)
 	}
 	if ancChar == newChar {
 		t.Errorf("EvolveChar(%d): expected 1, 2, or 3, actual (%d)", ancChar, newChar)
@@ -37,7 +38,7 @@ func TestEvolveExplicit(t *testing.T) {
 
 	// EvolveExplicit for 10 rounds
 	for i := 0; i < 10; i++ {
-		EvolveExplicit(&evolvedArray, rateMatrix)
+		MutateSeqExplicitly(&evolvedArray, rateMatrix)
 	}
 	diffCnt := 0
 	for i := range ancArray {
@@ -67,7 +68,7 @@ func TestEvolveFast(t *testing.T) {
 
 	// EvolveExplicit for 10 rounds
 	for i := 0; i < 10; i++ {
-		EvolveFast(&evolvedArray, 0.99, rateMatrix)
+		MutateSeqFast(&evolvedArray, 0.99, rateMatrix)
 	}
 	diffCnt := 0
 	for i := range ancArray {
@@ -227,4 +228,25 @@ func TestMutateSeqSpace(t *testing.T) {
 		t.Errorf("TestMutateSeqSpace(ancSeqSpace, %f, rateMatrix): ancSeqSpace should not be equal to result evolvedSeqSpace", mu)
 		t.Error(ancSeqSpace, evolvedSeqSpace)
 	}
+}
+
+func TestRecombineSeqSpace(t *testing.T) {
+	ancSeqSpace := [][]int{
+		[]int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		[]int{1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+		[]int{2, 2, 2, 2, 2, 2, 2, 2, 2, 2},
+		[]int{3, 3, 3, 3, 3, 3, 3, 3, 3, 3},
+		[]int{4, 4, 4, 4, 4, 4, 4, 4, 4, 4},
+	}
+	r := 0.1
+	evolvedSeqSpace := make([][]int, len(ancSeqSpace))
+	for i := range ancSeqSpace {
+		evolvedSeqSpace[i] = make([]int, len(ancSeqSpace[i]))
+		for j := range ancSeqSpace[i] {
+			evolvedSeqSpace[i][j] = ancSeqSpace[i][j]
+		}
+	}
+	fmt.Println("anc", ancSeqSpace)
+	RecombineSeqSpace(&evolvedSeqSpace, r)
+	fmt.Println("evolved", evolvedSeqSpace)
 }
