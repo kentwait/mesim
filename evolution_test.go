@@ -249,4 +249,10 @@ func TestRecombineSeqSpace(t *testing.T) {
 	fmt.Println("anc", ancSeqSpace)
 	RecombineSeqSpace(&evolvedSeqSpace, r)
 	fmt.Println("evolved", evolvedSeqSpace)
+
+	// TODO
+	// Break up RecombineSeqSpace to test these components individually
+	// Test whether evolvedSeqSpace has same shape as ancSeqSpace
+	// Test if recombination occurred
+	// Test if given a set of breakpoints, function uses
 }
